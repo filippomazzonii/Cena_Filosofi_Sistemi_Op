@@ -35,7 +35,6 @@ void cancella_forchetta(){
     }
     close(pipefd[0]);
     close(pipefd[1]);
-
     return;
 }
 
@@ -54,7 +53,7 @@ void inizio_cena(sem_t * forchetta[], int i, int num_filosofi){
     tempo.tv_sec = 0;//0 secondi
     tempo.tv_nsec = 600000000;//seicentomilioni di nanosecondi
     while(1){
-        //CASISTICA CON TUTTI INPUT 0
+        //CASISTICA CON TUTTI GLI INPUT CHE SONO 0
         if(flag_stallo == 0 && flag_soluzione == 0 && flag_starvation == 0){
             printf("il filosofo con pid %d ATTENDO la forchetta destra %d\n", getpid(), i);
             sem_wait(forchetta[i]);
@@ -70,7 +69,7 @@ void inizio_cena(sem_t * forchetta[], int i, int num_filosofi){
             sem_wait(forchetta[i]);
             printf("il filosofo con pid %d HA PRESO la forchetta destra\n", getpid());
 
-            sleep(1);//FAVORISCO LO STALLO 
+            sleep(1);//con questa operazione vado a favorire lo stallo
 
             printf("il Filosofo con pid %d ATTENDO la forchetta sinistra %d\n", getpid(), (i+1)%num_filosofi);
 
@@ -93,7 +92,7 @@ void inizio_cena(sem_t * forchetta[], int i, int num_filosofi){
             write(pipefd[1], &count_stallo, sizeof(int));
         }
 
-        //SOLUZIONE STALLO
+        //SOLUZIONE ALLO STALLO
         if((flag_soluzione == 1 && flag_stallo == 0 && flag_starvation == 0) || (flag_soluzione == 1 && flag_stallo == 1 && flag_starvation == 0)){
             int destra = i;
             int sinistra = i+1 % num_filosofi;
@@ -200,7 +199,7 @@ void inizio_cena(sem_t * forchetta[], int i, int num_filosofi){
                 write(pipefd[1], &count_stallo, sizeof(int));
             }
 
-            //CASO CON TUTTI FLAG IMPOSTATI AD 1
+            //CASO CON TUTTI FLAG CHE SONO IMPOSTATI AD 1
             if(flag_stallo == 1 && flag_soluzione == 1 && flag_starvation == 1){
                 int right = i;
                 int left = (i+1)% num_filosofi;
@@ -277,7 +276,7 @@ void inizio_cena(sem_t * forchetta[], int i, int num_filosofi){
 //FUNZIONE MAIN
 int main(int argc, char *argv[]){
     struct sigaction sa; //sigaction è il tipo della struct
-    memset(&sa, '\0', sizeof(struct sigaction)); //funzione che azzera la struttura sa
+    memset(&sa, '\0', sizeof(struct sigaction)); //funzione che azzera la struttura 
     sa.sa_handler = f_handler;
     sigaction(SIGINT, &sa, NULL);
 
@@ -342,7 +341,7 @@ int main(int argc, char *argv[]){
     write(pipefd[1], &count_stallo, sizeof(int)); //scrivo il valore della variabile dentro la pipe
 
 
-    //CREAZIONE FORCHETTE (SEMAFORI)
+    //CREAZIONE FORCHETTE (OVVERO I MIEI SEMAFORI)
     for(int j = 0; j < num_filosofi; j++){ //ciclo for per le forchette
         snprintf(str,sizeof(str), "%d", j);
         if((forchetta[j] = sem_open(str, O_CREAT, S_IRWXU ,1)) == SEM_FAILED){
@@ -376,7 +375,17 @@ int main(int argc, char *argv[]){
 
     //cancella_forchetta();
     printf("\n[FINE DELLA CENA DEI FILOSOFI]\n");
-    printf("\nSaluti dal parent dei filosofi %d\n", getppid());
+    printf("\nSaluti dal parent dei Filosofi %d\n", getppid());
 
     return 0;//return permette al processo padre di terminare al termine del programma
 }//fine main
+
+
+
+/*
+8b    d8  dP1Yb   dP1Yb  Yb  dP
+88b  d88 dP   Yb dP   Yb  YbdP
+88YbdP88 Yb   dP Yb   dP  dPYb
+88 YY 88  YbodP   YbodP  dP  Yb
+            Developer
+                                */
